@@ -49,20 +49,19 @@ static int read_callback(const char *path, char *buf, size_t size, off_t offset,
 
   if (strcmp(path, filepath) == 0) {
     size_t len = strlen(filecontent);
-    if (offset < len) {
-
-      if (offset + size > len) {
-        memcpy(buf, filecontent + offset, len - offset);
-        return len - offset;
-      }
-
-      memcpy(buf, filecontent + offset, size);
-      return size;
+    if (offset >= len) {
+      return 0;
     }
 
-    return 0;
+    if (offset + size > len) {
+      memcpy(buf, filecontent + offset, len - offset);
+      return len - offset;
+    }
 
+    memcpy(buf, filecontent + offset, size);
+    return size;
   }
+
   return -ENOENT;
 }
 
