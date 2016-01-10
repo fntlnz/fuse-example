@@ -48,10 +48,22 @@ static int read_callback(const char *path, char *buf, size_t size, off_t offset,
     struct fuse_file_info *fi) {
 
   if (strcmp(path, filepath) == 0) {
-    memcpy(buf, filecontent, strlen(filecontent));
-    return (int) strlen(filecontent);
+    size_t len = strlen(filecontent);
+    if (offset < len) {
+
+      if (offset + size > len) {
+        memcpy(buf, filecontent + offset, len - offset);
+        return len - offset;
+      }
+
+      memcpy(buf, filecontent + offset, size);
+      return size;
+    }
+
+    return 0;
+
   }
-  return 0;
+  return -ENOENT;
 }
 
 static struct fuse_operations fuse_example_operations = {
